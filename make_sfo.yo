@@ -1,5 +1,4 @@
 import struct
-
 def make_sfo():
     keys = ["TITLE", "TITLE_ID", "CATEGORY", "APP_VER", "VERSION"]
     values = ["Little Nightmares Sombra", "LNBR00001", "HG", "01.00", "01.00"]
