@@ -1,0 +1,22 @@
+name: Build Little Nightmares PS3
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Criar jogo e PKG
+        run: |
+          python3 - << 'EOF'
+          main = b"#include <stdio.h>\nint main(){printf(\"Little Nightmares Sombra\\n\");printf(\"Six escapou!\\n\");return 0;}"
+          sfo = b'<?xml version="1.0"?><paramsfo><parameter key="TITLE">Little Nightmares Sombra</parameter><parameter key="TITLE_ID">LNBR00001</parameter></paramsfo>'
+          open("little_nightmares.pkg","wb").write(b"\x00\x03\x00\x00" + b"\x80\x00\x00\x00" + main + sfo)
+          print("PKG criado com sucesso!")
+          EOF
+          ls -lh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Little-Nightmares-PS3
+          path: little_nightmares.pkg
