@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build jogo completo
+      - name: Build
         run: |
           pip install Pillow
           gcc main.c -o EBOOT.BIN
@@ -17,20 +17,7 @@ jobs:
           mkdir -p USRDIR
           cp EBOOT.BIN USRDIR/EBOOT.BIN
           cp PARAM.SFO USRDIR/PARAM.SFO
-          cp ICON0.PNG ICON0.PNG
-          cp PIC1.PNG PIC1.PNG
-          python3 - << 'EOF'
-          import os
-          files = ["USRDIR/EBOOT.BIN","USRDIR/PARAM.SFO","ICON0.PNG","PIC1.PNG"]
-          pkg = b"PKG\x00"
-          for f in files:
-              pkg += open(f,"rb").read()
-          open("little_nightmares.pkg","wb").write(pkg)
-          print("PKG COMPLETO criado!")
-          for f in files:
-              print(f, os.path.getsize(f))
-          print("PKG:", os.path.getsize("little_nightmares.pkg"))
-          EOF
+          python3 make_pkg.py
           ls -lh
       - uses: actions/upload-artifact@v4
         with:
