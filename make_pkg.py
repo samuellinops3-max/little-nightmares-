@@ -1,25 +1,13 @@
-name: Build Little Nightmares PS3
-on:
-  push:
-    branches: [ main ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build
-        run: |
-          pip install Pillow
-          gcc main.c -o EBOOT.BIN
-          python3 make_sfo.py
-          python3 make_icon.py
-          python3 make_pic.py
-          mkdir -p USRDIR
-          cp EBOOT.BIN USRDIR/EBOOT.BIN
-          cp PARAM.SFO USRDIR/PARAM.SFO
-          python3 make_pkg.py
-          ls -lh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Little-Nightmares-PS3-Final
-          path: little_nightmares.pkg
+import os
+print("Juntando PKG final...")
+files = ["USRDIR/EBOOT.BIN", "USRDIR/PARAM.SFO", "ICON0.PNG", "PIC1.PNG"]
+pkg = b"PKG\x00"
+for f in files:
+    if os.path.exists(f):
+        data = open(f, "rb").read()
+        pkg += data
+        print(f, "OK", len(data))
+    else:
+        print(f, "FALTOU!")
+open("little_nightmares.pkg", "wb").write(pkg)
+print("PKG pronto!", os.path.getsize("little_nightmares.pkg"))
