@@ -1,0 +1,43 @@
+import struct
+
+def make_sfo():
+    keys = ["TITLE", "TITLE_ID", "CATEGORY", "APP_VER", "VERSION"]
+    values = ["Little Nightmares Sombra", "LNBR00001", "HG", "01.00", "01.00"]
+    header_size = 20
+    key_table_offset = header_size + len(keys)*16
+    data_table_offset = key_table_offset + sum(len(k)+1 for k in keys)
+    data_table_offset = (data_table_offset + 3) & ~3
+    key_offsets = []
+    off = 0
+    for k in keys:
+        key_offsets.append(off)
+        off += len(k)+1
+    data_offsets = []
+    doff = 0
+    for v in values:
+        data_offsets.append(doff)
+        doff += len(v)+1
+    doff = (doff + 3) & ~3
+    out = b""
+    out += struct.pack("<I", 0x46535000)
+    out += struct.pack("<I", 0x101)
+    out += struct.pack("<I", key_table_offset)
+    out += struct.pack("<I", data_table_offset)
+    out += struct.pack("<I", len(keys))
+    for i in range(len(keys)):
+        out += struct.pack("<H", key_offsets[i])
+        out += struct.pack("<H", 0x0204)
+        out += struct.pack("<I", len(values[i])+1)
+        out += struct.pack("<I", len(values[i])+1)
+        out += struct.pack("<I", data_offsets[i])
+    for k in keys:
+        out += k.encode() + b"\x00"
+    while len(out) < data_table_offset:
+        out += b"\x00"
+    for v in values:
+        out += v.encode() + b"\x00"
+    while len(out) < data_table_offset + doff:
+        out += b"\x00"
+    open("PARAM.SFO","wb").write(out)
+    print("PARAM.SFO real criado!")
+make_sfo()
